@@ -1,5 +1,5 @@
 # domaincheck
-Test a domain for IPv6, DNSSEC, HTTPS and more
+Test a domain for IPv6, DNSSEC, HTTPS, SPF and more
 
 Prerequisites - Some OS with Apache, PHP, bash, dig and host
 
