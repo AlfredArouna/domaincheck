@@ -1,0 +1,73 @@
+#!/bin/bash
+
+function red {
+        echo "<font face="verdana" color="red">$@</font>"
+}
+function green {
+        echo "<font face="verdana" color="green">$@</font>"
+}
+
+COUNTER=0
+VOID=0
+check() {
+for WORD in $@
+do
+    if [ "`echo $WORD|grep a:`" ]; then  
+	if [ "` echo $WORD | sed 's/[^:]//g' | awk '{ print length }'`" = "1" ] ; then
+		((COUNTER++))
+		hostname=`echo $WORD | cut -d : -f 2`
+		if [ "`host $hostname | grep 'NXDOMAIN\|NOERROR'`" ] ; then
+			((VOID++))
+		fi
+	fi
+    fi
+    if [ "$WORD" = "mx" ]; then ((COUNTER++)) ; fi
+    if [ "$WORD" = "a" ]; then ((COUNTER++)); fi
+    if [ "$WORD" = "ptr" ]; then ((COUNTER++)); fi
+    if [ "`echo $WORD|grep include:`" ]; then 
+		 ((COUNTER++));
+		 include=`echo $WORD | cut -d : -f 2`
+		 if [ ! "`dig +short txt $include | grep v=spf1`" ] ; then
+			((VOID++))
+		fi
+		check `dig +short txt $include | grep v=spf1 | sed -s s/\"//g `
+    fi
+	if [ "`echo $WORD|grep redirect=`" ] ; then
+		((COUNTER++))
+		redirect=`echo $WORD | cut -d : -f 2`
+                 if [ ! "`dig +short txt $redirect | grep v=spf1`" ] ; then
+                        ((VOID++))
+                fi
+                check `dig +short txt $redirect | grep v=spf1 | sed -s s/\"//g `
+	fi
+	if [ "$COUNTER" -gt "100" ] ; then
+		red  "- $1's DNS-uppslag för SPF är över 100, ger upp"
+		exit
+	fi
+done
+}
+
+spf=`dig +short txt $1 | grep v=spf1 | sed -s s/\"//g`
+if [ ! "$spf" ] ; then
+	red "- $1 har ingen SPF uppsatt"
+	exit
+fi
+
+check $spf	
+		
+if (( "$VOID" > "1" )) ; then
+	red "- $1 har för många hostnamn vid a: eller TXT RR vid include: som inte finns"
+	if  [ "$COUNTER" -gt "10" ]  ; then
+  	      red "- $1's DNS-uppslag för SPF är $COUNTER, max är 10"
+	elif   [ "$COUNTER" -lt "11" ]  ; then
+        	red "- $1's SPF har $COUNTER DNS-uppslag men men antalet DNS-fel enligt ovan gör att det inte fungerar"
+	fi
+	exit
+		
+fi
+if  [ "$COUNTER" -gt "10" ]  ; then
+	red "- $1's DNS-uppslag för SPF är $COUNTER, max är 10"
+elif   [ "$COUNTER" -lt "11" ]  ; then
+	green "- $1 har fungerande SPF med $COUNTER DNS-uppslag"
+fi
+	
