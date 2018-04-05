@@ -1,7 +1,7 @@
 # domaincheck
 Test a domain for IPv6, DNSSEC, HTTPS, SPF and more
 
-Prerequisites - Some OS with Apache, PHP, bash, dig and host and perl with idn2.pl to fix åäöÅÄÖ. 
+Prerequisites - Some OS with Apache, PHP, bash, dig and host and perl some modules. 
 
 Please fork this or help me with more functions - shame list - rate limit of tests, more accurate tests and so on.
 
