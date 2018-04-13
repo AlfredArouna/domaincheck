@@ -73,9 +73,9 @@ function https {
 		if [ ! "`dig +short -tcaa $domain2`" ] ; then
 			orange "-         men ingen CAA post på `echo $domain2 | sed s/"www."//g` för certifikat uppsatt"
 		fi
-		#if [ ! "`curl -m 2 -s -I https://www.$1 | grep Strict-Transport-Security`" ] ; then
-		#	red "-         har inte HSTS för HTTPS uppsatt"
-		#fi
+		if [ ! "`curl -m 2 -s -I https://www.$1 | grep Strict-Transport-Security`" ] ; then
+			orange "-         har inte HSTS för HTTPS uppsatt"
+		fi
 		;;
 	7)
 		red "- $1 Det går inte att ansluta till https://www.$1" ;;
