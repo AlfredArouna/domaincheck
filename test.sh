@@ -109,9 +109,6 @@ function mx {
 				fi
 			fi
 		done
-		#if [ "$mxv6" = "1" ] ; then
-        	#        green "- $1 IPv6 aktiverat för inkommande mail men det är inte testat att det fungerar"
-	        #fi
 		if [ ! "$MX" ] ; then
 			green "- $1 tar inte emot mail"
 			exit
@@ -123,6 +120,13 @@ function mx {
         	if [ "$MX" ] ; then
                	./spf2 $1 
         	fi	
+		res=`dig +short -tTXT _dmarc.$1`
+                if [ "$res" ] ; then
+                        green "-          har DMARC"
+                elif [ ! "$res" ] ; then
+                        orange "-         har inte DMARC uppsatt"
+                fi
+
 	fi
 
 }
