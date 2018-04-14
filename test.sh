@@ -58,7 +58,7 @@ function https {
 	if [ "$res" ] ; then
 		location=`echo $res | awk -F"Location:" '{print $2}'`
 		location=${location%$'\r'}
-		green "- $1 har automatisk https till$location"
+		green "- $1 har automatisk https till $location"
 		host=$location
 	elif [ ! "$res" ] ; then
 		red "- $1 har inte automatisk https"
@@ -70,8 +70,8 @@ function https {
 	0)
 		green "- $1 har fungerande https" 
 		domain2=`echo $host | awk -F/ '{print $3}'`
-		if [ ! "`dig +short -tcaa $domain2`" ] ; then
-			orange "-         men ingen CAA post på `echo $domain2 | sed s/"www."//g` för certifikat uppsatt"
+		if [ ! "`dig +short -tcaa $1`" ] ; then
+			orange "-         men ingen CAA post för certifikat uppsatt"
 		fi
 		if [ ! "`curl -m 2 -s -I https://www.$1 | grep Strict-Transport-Security`" ] ; then
 			orange "-         har inte HSTS för HTTPS uppsatt"
